@@ -1,0 +1,45 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "fitness-tracker"
+		},
+		"LS_SF_password": {
+			"value": ""
+		},
+		"LS_SQL__password": {
+			"value": ""
+		},
+		"LS_AKV_properties_typeProperties_baseUrl": {
+			"value": "https://snowflakes-keyvault.vault.azure.net/"
+		},
+		"LS_BLS_sasUri": {
+			"value": ""
+		},
+		"LS_SF_properties_typeProperties_database": {
+			"value": "FITNESS_TRACKER"
+		},
+		"LS_SF_properties_typeProperties_role": {
+			"value": "ACCOUNTADMIN"
+		},
+		"LS_SF_properties_typeProperties_host": {
+			"value": "UQSPSIL-ANB46390.snowflakecomputing.com"
+		},
+		"LS_SQL__properties_typeProperties_server": {
+			"value": "localhost"
+		},
+		"LS_SQL__properties_typeProperties_database": {
+			"value": "fitness_tracker"
+		},
+		"LS_SQL__properties_typeProperties_userName": {
+			"value": "AzureAD\\PoojaDharshiniBoopat"
+		},
+		"containerUri": {
+			"value": ""
+		},
+		"containerSasToken": {
+			"value": ""
+		}
+	}
+}

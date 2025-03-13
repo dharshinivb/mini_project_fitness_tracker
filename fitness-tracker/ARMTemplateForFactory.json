@@ -1,0 +1,781 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "fitness-tracker"
+		},
+		"LS_SF_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_SF'"
+		},
+		"LS_SQL__password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'LS_SQL_'"
+		},
+		"LS_AKV_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://snowflakes-keyvault.vault.azure.net/"
+		},
+		"LS_BLS_sasUri": {
+			"type": "secureString",
+			"metadata": "Secure string for 'sasUri' of 'LS_BLS'"
+		},
+		"LS_SF_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "FITNESS_TRACKER"
+		},
+		"LS_SF_properties_typeProperties_role": {
+			"type": "string",
+			"defaultValue": "ACCOUNTADMIN"
+		},
+		"LS_SF_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "UQSPSIL-ANB46390.snowflakecomputing.com"
+		},
+		"LS_SQL__properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "localhost"
+		},
+		"LS_SQL__properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "fitness_tracker"
+		},
+		"LS_SQL__properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "AzureAD\\PoojaDharshiniBoopat"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/fitness_tracker')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Transactions",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "SnowflakeV2Sink",
+								"importSettings": {
+									"type": "SnowflakeImportCopyCommand"
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "LS_BLS",
+									"type": "LinkedServiceReference"
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "MSQL_1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SnowflakeTable1",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Products",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Transactions",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "SnowflakeV2Sink",
+								"importSettings": {
+									"type": "SnowflakeImportCopyCommand"
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "LS_BLS",
+									"type": "LinkedServiceReference"
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "MSQL_2",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SnowflakeTable2",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Customers",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Products",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "SnowflakeV2Sink",
+								"importSettings": {
+									"type": "SnowflakeImportCopyCommand"
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "LS_BLS",
+									"type": "LinkedServiceReference"
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "MSQL_3",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SnowflakeTable3",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Country Region",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Customers",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "SnowflakeV2Sink",
+								"importSettings": {
+									"type": "SnowflakeImportCopyCommand"
+								}
+							},
+							"enableStaging": true,
+							"stagingSettings": {
+								"linkedServiceName": {
+									"referenceName": "LS_BLS",
+									"type": "LinkedServiceReference"
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "MSQL_4",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "SnowflakeTable4",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/MSQL_1')]",
+				"[concat(variables('factoryId'), '/datasets/SnowflakeTable1')]",
+				"[concat(variables('factoryId'), '/datasets/MSQL_2')]",
+				"[concat(variables('factoryId'), '/datasets/SnowflakeTable2')]",
+				"[concat(variables('factoryId'), '/datasets/MSQL_3')]",
+				"[concat(variables('factoryId'), '/datasets/SnowflakeTable3')]",
+				"[concat(variables('factoryId'), '/datasets/MSQL_4')]",
+				"[concat(variables('factoryId'), '/datasets/SnowflakeTable4')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_BLS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MSQL_1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "customer_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "product_id",
+						"type": "varchar"
+					},
+					{
+						"name": "payment_month",
+						"type": "date"
+					},
+					{
+						"name": "revenue_type",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "revenue",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 10
+					},
+					{
+						"name": "quantity",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "dimension_1",
+						"type": "nvarchar"
+					},
+					{
+						"name": "dimension_2",
+						"type": "nvarchar"
+					},
+					{
+						"name": "dimension_3",
+						"type": "nvarchar"
+					},
+					{
+						"name": "dimension_4",
+						"type": "nvarchar"
+					},
+					{
+						"name": "dimension_5",
+						"type": "nvarchar"
+					},
+					{
+						"name": "dimension_6",
+						"type": "nvarchar"
+					},
+					{
+						"name": "dimension_7",
+						"type": "nvarchar"
+					},
+					{
+						"name": "dimension_8",
+						"type": "nvarchar"
+					},
+					{
+						"name": "dimension_9",
+						"type": "nvarchar"
+					},
+					{
+						"name": "dimension_10",
+						"type": "nvarchar"
+					},
+					{
+						"name": "companies",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "transactions"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MSQL_2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "product_id",
+						"type": "varchar"
+					},
+					{
+						"name": "PRODUCT_Family",
+						"type": "varchar"
+					},
+					{
+						"name": "product_sub_family",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "products"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MSQL_3')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "company",
+						"type": "varchar"
+					},
+					{
+						"name": "customer_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "customername",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "customers"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MSQL_4')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SQL_",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "customer_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "country",
+						"type": "varchar"
+					},
+					{
+						"name": "region",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Country_Region"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SnowflakeTable1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SF",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SnowflakeV2Table",
+				"schema": [
+					{
+						"name": "CUSTOMER_ID",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "PRODUCT_ID",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "PAYMENT_MONTH",
+						"type": "DATE"
+					},
+					{
+						"name": "REVENUE_TYPE",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "REVENUE",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "QUANTITY",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "DIMENSION_1",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_2",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_3",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_4",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_5",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_6",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_7",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_8",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_9",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_10",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "COMPANIES",
+						"type": "VARCHAR"
+					}
+				],
+				"typeProperties": {
+					"schema": "RAW",
+					"table": "TRANSACTIONS"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SF')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SnowflakeTable2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SF",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SnowflakeV2Table",
+				"schema": [
+					{
+						"name": "PRODUCT_ID",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "PRODUCT_FAMILY",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "PRODUCT_SUB_FAMILY",
+						"type": "VARCHAR"
+					}
+				],
+				"typeProperties": {
+					"schema": "RAW",
+					"table": "PRODUCTS"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SF')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SnowflakeTable3')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SF",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SnowflakeV2Table",
+				"schema": [
+					{
+						"name": "COMPANY",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "CUSTOMER_ID",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "CUSTOMERNAME",
+						"type": "VARCHAR"
+					}
+				],
+				"typeProperties": {
+					"schema": "RAW",
+					"table": "CUSTOMERS"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SF')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SnowflakeTable4')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SF",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SnowflakeV2Table",
+				"schema": [
+					{
+						"name": "CUSTOMER_ID",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "COUNTRY",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "REGION",
+						"type": "VARCHAR"
+					}
+				],
+				"typeProperties": {
+					"schema": "RAW",
+					"table": "COUNTRY_REGION"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SF')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_AKV')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to  key vault",
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('LS_AKV_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_BLS')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"sasUri": "[parameters('LS_BLS_sasUri')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_SF')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connecting to Snowflakes directly",
+				"annotations": [],
+				"type": "SnowflakeV2",
+				"typeProperties": {
+					"authenticationType": "Basic",
+					"accountIdentifier": "ANB46390",
+					"user": "Pooja",
+					"database": "[parameters('LS_SF_properties_typeProperties_database')]",
+					"warehouse": "COMPUTE_WH",
+					"role": "[parameters('LS_SF_properties_typeProperties_role')]",
+					"host": "[parameters('LS_SF_properties_typeProperties_host')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('LS_SF_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_SQL_')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"server": "[parameters('LS_SQL__properties_typeProperties_server')]",
+					"database": "[parameters('LS_SQL__properties_typeProperties_database')]",
+					"encrypt": "optional",
+					"trustServerCertificate": false,
+					"authenticationType": "Windows",
+					"userName": "[parameters('LS_SQL__properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('LS_SQL__password')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "IR-SH",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/IR-SH')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/IR-SH')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		}
+	]
+}
