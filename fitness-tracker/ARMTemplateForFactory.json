@@ -17,7 +17,11 @@
 		},
 		"LS_AKV_properties_typeProperties_baseUrl": {
 			"type": "string",
-			"defaultValue": "https://snowflakes-keyvault.vault.azure.net/"
+			"defaultValue": "https://kv-credentials-sf.vault.azure.net/"
+		},
+		"LS_AKV_SQLServer_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://KV-SQL-Server.vault.azure.net/"
 		},
 		"LS_BLS_sasUri": {
 			"type": "secureString",
@@ -34,6 +38,30 @@
 		"LS_SF_properties_typeProperties_host": {
 			"type": "string",
 			"defaultValue": "UQSPSIL-ANB46390.snowflakecomputing.com"
+		},
+		"LS_SF_KV_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "FITNESS_TRACKER"
+		},
+		"LS_SF_KV_properties_typeProperties_role": {
+			"type": "string",
+			"defaultValue": "ACCOUNTADMIN"
+		},
+		"LS_SF_KV_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "UQSPSIL-ANB46390.snowflakecomputing.com"
+		},
+		"LS_SQLServer_KV_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "localhost"
+		},
+		"LS_SQLServer_KV_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "fitness_tracker"
+		},
+		"LS_SQLServer_KV_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "AzureAD\\PoojaDharshiniBoopat"
 		},
 		"LS_SQL__properties_typeProperties_server": {
 			"type": "string",
@@ -490,7 +518,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "LS_SF",
+					"referenceName": "LS_SF_KV",
 					"type": "LinkedServiceReference"
 				},
 				"annotations": [],
@@ -579,7 +607,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_SF')]"
+				"[concat(variables('factoryId'), '/linkedServices/LS_SF_KV')]"
 			]
 		},
 		{
@@ -588,7 +616,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "LS_SF",
+					"referenceName": "LS_SF_KV",
 					"type": "LinkedServiceReference"
 				},
 				"annotations": [],
@@ -613,7 +641,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_SF')]"
+				"[concat(variables('factoryId'), '/linkedServices/LS_SF_KV')]"
 			]
 		},
 		{
@@ -622,7 +650,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "LS_SF",
+					"referenceName": "LS_SF_KV",
 					"type": "LinkedServiceReference"
 				},
 				"annotations": [],
@@ -649,7 +677,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_SF')]"
+				"[concat(variables('factoryId'), '/linkedServices/LS_SF_KV')]"
 			]
 		},
 		{
@@ -658,7 +686,7 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"linkedServiceName": {
-					"referenceName": "LS_SF",
+					"referenceName": "LS_SF_KV",
 					"type": "LinkedServiceReference"
 				},
 				"annotations": [],
@@ -685,7 +713,7 @@
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_SF')]"
+				"[concat(variables('factoryId'), '/linkedServices/LS_SF_KV')]"
 			]
 		},
 		{
@@ -698,6 +726,20 @@
 				"type": "AzureKeyVault",
 				"typeProperties": {
 					"baseUrl": "[parameters('LS_AKV_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_AKV_SQLServer')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to SQL Server",
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('LS_AKV_SQLServer_properties_typeProperties_baseUrl')]"
 				}
 			},
 			"dependsOn": []
@@ -738,6 +780,71 @@
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_SF_KV')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connecting snowflakes through Key Vault",
+				"annotations": [],
+				"type": "SnowflakeV2",
+				"typeProperties": {
+					"authenticationType": "Basic",
+					"accountIdentifier": "ANB46390",
+					"user": "Pooja",
+					"database": "[parameters('LS_SF_KV_properties_typeProperties_database')]",
+					"warehouse": "COMPUTE_WH",
+					"role": "[parameters('LS_SF_KV_properties_typeProperties_role')]",
+					"host": "[parameters('LS_SF_KV_properties_typeProperties_host')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "LS_AKV",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "Password"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_AKV')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_SQLServer_KV')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to sql server through Key Vault",
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"server": "[parameters('LS_SQLServer_KV_properties_typeProperties_server')]",
+					"database": "[parameters('LS_SQLServer_KV_properties_typeProperties_database')]",
+					"encrypt": "optional",
+					"trustServerCertificate": false,
+					"authenticationType": "Windows",
+					"userName": "[parameters('LS_SQLServer_KV_properties_typeProperties_userName')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "LS_AKV_SQLServer",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "Password",
+						"secretVersion": "f1a17d383458430fa8b9acbb71d099b0"
+					}
+				},
+				"connectVia": {
+					"referenceName": "IR-SH",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/IR-SH')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_AKV_SQLServer')]"
+			]
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/LS_SQL_')]",

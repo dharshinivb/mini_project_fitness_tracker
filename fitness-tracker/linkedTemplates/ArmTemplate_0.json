@@ -17,7 +17,11 @@
 		},
 		"LS_AKV_properties_typeProperties_baseUrl": {
 			"type": "string",
-			"defaultValue": "https://snowflakes-keyvault.vault.azure.net/"
+			"defaultValue": "https://kv-credentials-sf.vault.azure.net/"
+		},
+		"LS_AKV_SQLServer_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://KV-SQL-Server.vault.azure.net/"
 		},
 		"LS_BLS_sasUri": {
 			"type": "secureString",
@@ -34,6 +38,30 @@
 		"LS_SF_properties_typeProperties_host": {
 			"type": "string",
 			"defaultValue": "UQSPSIL-ANB46390.snowflakecomputing.com"
+		},
+		"LS_SF_KV_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "FITNESS_TRACKER"
+		},
+		"LS_SF_KV_properties_typeProperties_role": {
+			"type": "string",
+			"defaultValue": "ACCOUNTADMIN"
+		},
+		"LS_SF_KV_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "UQSPSIL-ANB46390.snowflakecomputing.com"
+		},
+		"LS_SQLServer_KV_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "localhost"
+		},
+		"LS_SQLServer_KV_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "fitness_tracker"
+		},
+		"LS_SQLServer_KV_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "AzureAD\\PoojaDharshiniBoopat"
 		},
 		"LS_SQL__properties_typeProperties_server": {
 			"type": "string",
@@ -62,6 +90,20 @@
 				"type": "AzureKeyVault",
 				"typeProperties": {
 					"baseUrl": "[parameters('LS_AKV_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/LS_AKV_SQLServer')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"description": "Connection to SQL Server",
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('LS_AKV_SQLServer_properties_typeProperties_baseUrl')]"
 				}
 			},
 			"dependsOn": []
@@ -114,207 +156,68 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SnowflakeTable1')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/LS_SF_KV')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_SF",
-					"type": "LinkedServiceReference"
-				},
+				"description": "Connecting snowflakes through Key Vault",
 				"annotations": [],
-				"type": "SnowflakeV2Table",
-				"schema": [
-					{
-						"name": "CUSTOMER_ID",
-						"type": "NUMBER",
-						"precision": 38,
-						"scale": 0
-					},
-					{
-						"name": "PRODUCT_ID",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "PAYMENT_MONTH",
-						"type": "DATE"
-					},
-					{
-						"name": "REVENUE_TYPE",
-						"type": "NUMBER",
-						"precision": 38,
-						"scale": 0
-					},
-					{
-						"name": "REVENUE",
-						"type": "NUMBER",
-						"precision": 38,
-						"scale": 0
-					},
-					{
-						"name": "QUANTITY",
-						"type": "NUMBER",
-						"precision": 38,
-						"scale": 0
-					},
-					{
-						"name": "DIMENSION_1",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "DIMENSION_2",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "DIMENSION_3",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "DIMENSION_4",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "DIMENSION_5",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "DIMENSION_6",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "DIMENSION_7",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "DIMENSION_8",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "DIMENSION_9",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "DIMENSION_10",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "COMPANIES",
-						"type": "VARCHAR"
-					}
-				],
+				"type": "SnowflakeV2",
 				"typeProperties": {
-					"schema": "RAW",
-					"table": "TRANSACTIONS"
+					"authenticationType": "Basic",
+					"accountIdentifier": "ANB46390",
+					"user": "Pooja",
+					"database": "[parameters('LS_SF_KV_properties_typeProperties_database')]",
+					"warehouse": "COMPUTE_WH",
+					"role": "[parameters('LS_SF_KV_properties_typeProperties_role')]",
+					"host": "[parameters('LS_SF_KV_properties_typeProperties_host')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "LS_AKV",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "Password"
+					}
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_SF')]"
+				"[concat(variables('factoryId'), '/linkedServices/LS_AKV')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/SnowflakeTable2')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
+			"name": "[concat(parameters('factoryName'), '/LS_SQLServer_KV')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
 			"apiVersion": "2018-06-01",
 			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_SF",
-					"type": "LinkedServiceReference"
-				},
+				"description": "Connection to sql server through Key Vault",
 				"annotations": [],
-				"type": "SnowflakeV2Table",
-				"schema": [
-					{
-						"name": "PRODUCT_ID",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "PRODUCT_FAMILY",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "PRODUCT_SUB_FAMILY",
-						"type": "VARCHAR"
-					}
-				],
+				"type": "SqlServer",
 				"typeProperties": {
-					"schema": "RAW",
-					"table": "PRODUCTS"
+					"server": "[parameters('LS_SQLServer_KV_properties_typeProperties_server')]",
+					"database": "[parameters('LS_SQLServer_KV_properties_typeProperties_database')]",
+					"encrypt": "optional",
+					"trustServerCertificate": false,
+					"authenticationType": "Windows",
+					"userName": "[parameters('LS_SQLServer_KV_properties_typeProperties_userName')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "LS_AKV_SQLServer",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "Password",
+						"secretVersion": "f1a17d383458430fa8b9acbb71d099b0"
+					}
+				},
+				"connectVia": {
+					"referenceName": "IR-SH",
+					"type": "IntegrationRuntimeReference"
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_SF')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SnowflakeTable3')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_SF",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "SnowflakeV2Table",
-				"schema": [
-					{
-						"name": "COMPANY",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "CUSTOMER_ID",
-						"type": "NUMBER",
-						"precision": 38,
-						"scale": 0
-					},
-					{
-						"name": "CUSTOMERNAME",
-						"type": "VARCHAR"
-					}
-				],
-				"typeProperties": {
-					"schema": "RAW",
-					"table": "CUSTOMERS"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_SF')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/SnowflakeTable4')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "LS_SF",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "SnowflakeV2Table",
-				"schema": [
-					{
-						"name": "CUSTOMER_ID",
-						"type": "NUMBER",
-						"precision": 38,
-						"scale": 0
-					},
-					{
-						"name": "COUNTRY",
-						"type": "VARCHAR"
-					},
-					{
-						"name": "REGION",
-						"type": "VARCHAR"
-					}
-				],
-				"typeProperties": {
-					"schema": "RAW",
-					"table": "COUNTRY_REGION"
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/LS_SF')]"
+				"[concat(variables('factoryId'), '/integrationRuntimes/IR-SH')]",
+				"[concat(variables('factoryId'), '/linkedServices/LS_AKV_SQLServer')]"
 			]
 		},
 		{
@@ -542,6 +445,210 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/LS_SQL_')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SnowflakeTable1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SF_KV",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SnowflakeV2Table",
+				"schema": [
+					{
+						"name": "CUSTOMER_ID",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "PRODUCT_ID",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "PAYMENT_MONTH",
+						"type": "DATE"
+					},
+					{
+						"name": "REVENUE_TYPE",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "REVENUE",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "QUANTITY",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "DIMENSION_1",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_2",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_3",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_4",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_5",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_6",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_7",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_8",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_9",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "DIMENSION_10",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "COMPANIES",
+						"type": "VARCHAR"
+					}
+				],
+				"typeProperties": {
+					"schema": "RAW",
+					"table": "TRANSACTIONS"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SF_KV')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SnowflakeTable2')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SF_KV",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SnowflakeV2Table",
+				"schema": [
+					{
+						"name": "PRODUCT_ID",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "PRODUCT_FAMILY",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "PRODUCT_SUB_FAMILY",
+						"type": "VARCHAR"
+					}
+				],
+				"typeProperties": {
+					"schema": "RAW",
+					"table": "PRODUCTS"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SF_KV')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SnowflakeTable3')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SF_KV",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SnowflakeV2Table",
+				"schema": [
+					{
+						"name": "COMPANY",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "CUSTOMER_ID",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "CUSTOMERNAME",
+						"type": "VARCHAR"
+					}
+				],
+				"typeProperties": {
+					"schema": "RAW",
+					"table": "CUSTOMERS"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SF_KV')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SnowflakeTable4')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "LS_SF_KV",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "SnowflakeV2Table",
+				"schema": [
+					{
+						"name": "CUSTOMER_ID",
+						"type": "NUMBER",
+						"precision": 38,
+						"scale": 0
+					},
+					{
+						"name": "COUNTRY",
+						"type": "VARCHAR"
+					},
+					{
+						"name": "REGION",
+						"type": "VARCHAR"
+					}
+				],
+				"typeProperties": {
+					"schema": "RAW",
+					"table": "COUNTRY_REGION"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/LS_SF_KV')]"
 			]
 		},
 		{
