@@ -2,7 +2,7 @@
 	"name": "SnowflakeTable1",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "LS_SF",
+			"referenceName": "LS_SF_KV",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
