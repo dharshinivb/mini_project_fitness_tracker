@@ -84,6 +84,41 @@
 							"referenceName": "LS_BLS",
 							"type": "LinkedServiceReference"
 						}
+					},
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "product_id",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PRODUCT_ID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "PRODUCT_Family",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PRODUCT_FAMILY",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "product_sub_family",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PRODUCT_SUB_FAMILY",
+									"type": "String"
+								}
+							}
+						]
 					}
 				},
 				"inputs": [
